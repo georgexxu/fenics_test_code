@@ -60,21 +60,6 @@ for grid_point in [20000]:
 
         eta = Function(V1)
 
-        # def computeRadius(eta,V): # robust in non-parallel mode
-
-        #     '''
-        #     robust in non-parallel mode
-        #     time consuming, when interpolate on 120*120*120, takes 93s, yet solving only takes 20s
-        #     the most time consuming step is interpolate
-        #     '''
-        #     #eta = interpolate(eta,V)
-        #     #eta = project(eta,V)
-        #     values = eta.vector().get_local()
-        #     values = np.where(values > - DOLFIN_EPS,1,values)
-        #     values = np.where(values != 1, 0, values)
-        #     volume = 100*100*100*np.sum(values)/float(len(values))
-        #     R = np.power((3/(4.0*np.pi))*volume,1.0/3)
-        #     return R
 
         t = 0 
         counter = 0
@@ -82,28 +67,11 @@ for grid_point in [20000]:
         Rs = [] 
         ts = []
 
-        # a1 = time.time()
-        # R = computeArea(eta_n)
-        # Rs.append(R)
-        # ts.append(t)
-        # a2 = time.time()-a1
-
-        # with open('semi_amg_2D_CPU.txt', 'a') as fCPU:
-        #     fCPU.write("Mesh:%s\n" % grid_point)
-        #     fCPU.write("time for computing radius:%s\n" % a2)
-
-        # print("time for computing radius: ",a2)
-
-        # vtkfile = File("semi_amg_2D/eta.pvd")
-        # vtkfile << (eta_n,t)
-
 
         a1 = time.time()
 
         parameters["linear_algebra_backend"] = "PETSc"
         
-        # krylov_method="cg"
-        # solver = KrylovSolver(krylov_method)
         krylov_method="cg"
         precond="hypre_amg"
         #precond="none"    
@@ -118,19 +86,6 @@ for grid_point in [20000]:
 
         A, b = assemble_system(a, L)
 
-        #solver.set_operator(A)
-
-
-        # P, b_temp = assemble_system(p, L)
-
-        # solver.set_operator(A,P)
-
-        # a2 = time.time()-a1
-
-        # with open('semi_amg_2D_CPU.txt', 'a') as fCPU:
-        #     fCPU.write("time for setup:%s\n" % a2)
-
-        # print("time for setup: ",a2)
 
         start_time = time.time()
         while t < T: 
@@ -146,56 +101,3 @@ for grid_point in [20000]:
                 print("Wall time is: ",time.time()-w_time)
                 print("Process time is: ",time.process_time()-cpu_time)
             eta_n.assign(eta)
-
-        #     counter += 1
-        #     if counter % print_ferquence == 0:
-        #         #vtkfile << (eta,t)
-        #         R = computeArea(eta)
-        #         Rs.append(R) #better to write to a file
-        #         ts.append(t)
-        # end_time = round(time.time()-start_time,2)
-        # print(ts)
-        # print(Rs)
-        # slope, intercept, r_value, p_value, std_err = stats.linregress(ts,Rs)
-        # rel_error = abs(exact_slope-slope)/abs(exact_slope)
-        # with open('semi_cg_2D_slope_time_1.txt', 'a') as f_slope:
-        #     f_slope.write(str(grid_point)+'\t')
-        #     f_slope.write(str(dt) + '\t' + str(slope)+'\t'+ str(rel_error)+'\t'+str(end_time)+'\n')
-
-
-        # a2 = time.time()-a1
-
-        # with open('semi_amg_2D_CPU.txt', 'a') as fCPU:
-        #     fCPU.write("time for solving the PDE:%s\n" % a2)
-        # print("time for solve the PDE: ",a2)
-
-        # print(Rs)
-        # print(ts)
-
-
-        # elapsed_time = time.time() - start_time
-        # print('User message ===> Computation time: ', elapsed_time, ' s', flush=True)
-
-        # with open('semi_1st_2D_Area_dt_1_'+str(grid_point)+'.txt', 'w') as fR:
-        #     for item in Rs:
-        #         fR.write("%s\n" % item)
-
-        # with open('semi_1st_2D_t_dt_1_'+str(grid_point)+'.txt', 'w') as ft:
-        #     for item in ts:
-        #         ft.write("%s\n" % item)
-
-
-
-    # h = [math.pi * 100 * 100 - 2.0 * math.pi * t for t in ts]
-    # Rs = [R + h[0] - Rs[0] for R  in Rs]
-    # print("numerical solution: ")
-    # print(Rs)
-
-
-    # plt.plot(ts, h,'-', label='Area: reference')
-    # plt.plot(ts, Rs,'*', label='Area: semi-implicit')
-
-    # plt.legend()
-    # plt.savefig('semi_amg_2D.png')
-    # plt.show()
-
